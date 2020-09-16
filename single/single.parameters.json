@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmSku": {
+      "value": "Standard_A1"
+    },
+    "windowsOSVersion": {
+      "value": "2016-Datacenter"
+    },
+    "vmssName": {
+      "value": "myvmss"
+    },
+    "instanceCount": {
+      "value": 2
+    },
+    "adminUsername": {
+      "value": "vmssadmin"
+    },
+    "adminPassword": {
+      "value": "Pa$$w0rd1234"
+    },
+    "powershelldscZip": {
+      "value": "DSC/IISInstall.ps1.zip"
+    },
+    "basicWebApp": {
+      "value": "basicWebApp/basicWebApp.zip"
+    },
+    "dscTagVersion": {
+      "value": "1.0"
+    }
+  }
+}
