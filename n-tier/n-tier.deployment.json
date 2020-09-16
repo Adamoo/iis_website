@@ -106,6 +106,7 @@
     "natEndPort": 50119,
     "natBackendPort": 3389,
     "nicName": "[concat(variables('nameBase'), 'nic')]",
+    "autoscaleName": "[concat(variables('nameBase'),'host')]",
     "ipConfigName": "[concat(variables('nameBase'), 'ipconfig')]",
     "osType": {
       "publisher": "MicrosoftWindowsServer",
@@ -325,6 +326,72 @@
             ]
           }
         }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/autoscaleSettings",
+      "apiVersion": "2015-04-01",
+      "name": "[concat(variables('autoscaleName'),copyIndex())]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachineScaleSets/', concat(variables('nameBase'),copyIndex()))]"
+      ],
+      "copy": {
+        "count": "[variables('loopLenght')]",
+        "name": "vmssautoloop"
+      },
+      "properties": {
+        "name": "[concat(variables('autoscaleName'),copyIndex())]",
+        "targetResourceUri": "[concat(resourceId('Microsoft.Compute/virtualMachineScaleSets/', concat(variables('nameBase'),copyIndex())))]",
+        "enabled": true,
+        "profiles": [
+          {
+            "name": "Profile1",
+            "capacity": {
+              "minimum": "1",
+              "maximum": "10",
+              "default": "1"
+            },
+            "rules": [
+              {
+                "metricTrigger": {
+                  "metricName": "Percentage CPU",
+                  "metricResourceUri": "[concat(resourceId('Microsoft.Compute/virtualMachineScaleSets/', concat(variables('nameBase'),copyIndex())))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT5M",
+                  "timeAggregation": "Average",
+                  "operator": "GreaterThan",
+                  "threshold": 50
+                },
+                "scaleAction": {
+                  "direction": "Increase",
+                  "type": "ChangeCount",
+                  "value": "1",
+                  "cooldown": "PT5M"
+                }
+              },
+              {
+                "metricTrigger": {
+                  "metricName": "Percentage CPU",
+                  "metricResourceUri": "[concat(resourceId('Microsoft.Compute/virtualMachineScaleSets/', concat(variables('nameBase'),copyIndex())))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT5M",
+                  "timeAggregation": "Average",
+                  "operator": "LessThan",
+                  "threshold": 30
+                },
+                "scaleAction": {
+                  "direction": "Decrease",
+                  "type": "ChangeCount",
+                  "value": "1",
+                  "cooldown": "PT5M"
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
